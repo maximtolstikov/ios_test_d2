@@ -10,7 +10,7 @@ import UIKit
 
 class MasterViewController: UIViewController {
 
-    @IBOutlet private var tableView: UITableView!
+    @IBOutlet weak var tableView: UITableView!
     @IBOutlet private weak var leadingTableViewLayoutConstraint: NSLayoutConstraint!
     @IBOutlet private weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
     
@@ -21,9 +21,6 @@ class MasterViewController: UIViewController {
     private var loadMoreStatus = false
     private var numberOfPageToLoad = 1
     private var requestedTag = ""
-    private var panRecognizer: UIPanGestureRecognizer?
-    private var screenEdgePanRecognizer: UIScreenEdgePanGestureRecognizer?
-
     
     var formatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -117,32 +114,7 @@ class MasterViewController: UIViewController {
             }
             numberOfPageToLoad += 1
         }
-    }
-    
-    // MARK: - IBAction
-    @IBAction func slideMenu(_ sender: Any) {
-        if leadingTableViewLayoutConstraint.constant == 0 {
-            leadingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width / 2
-            trailingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width * -0.5
-            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
-                self.view.layoutIfNeeded()
-            })
-            screenEdgePanRecognizer?.isEnabled = false
-            panRecognizer?.isEnabled = true
-            tableView.allowsSelection = false
-        } else {
-            leadingTableViewLayoutConstraint.constant = 0
-            trailingTableViewLayoutConstraint.constant = 0
-            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
-                self.view.layoutIfNeeded()
-            })
-            screenEdgePanRecognizer?.isEnabled = true
-            panRecognizer?.isEnabled = false
-            tableView.allowsSelection = true
-        }
-    }
-
-    
+    }    
 }
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
