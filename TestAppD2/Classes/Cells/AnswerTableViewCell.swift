@@ -10,22 +10,25 @@ import UIKit
 
 class AnswerTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var answerLabel: UILabel!
-    @IBOutlet weak var authorLabel: UILabel!
-    @IBOutlet weak var lastActivityDateLabel: UILabel!
-    @IBOutlet weak var numberOfVotesLabel: UILabel!
-    @IBOutlet weak var checkImageView: UIImageView!
+    @IBOutlet private weak var answerLabel: UILabel!
+    @IBOutlet private weak var authorLabel: UILabel!
+    @IBOutlet private weak var lastActivityDateLabel: UILabel!
+    @IBOutlet private weak var numberOfVotesLabel: UILabel!
+    @IBOutlet private weak var checkImageView: UIImageView!
     
-    func fill(_ answer: AnswerItem?) {
+    func fill(_ answer: AnswerItem?, dateFormatter: DateFormatter) {
         backgroundColor = UIColor.white
         var answerBody = answer?.body
-        // FIXME: - Simplify!
         let attributedString = NSMutableAttributedString(string: answer?.body ?? "")
         let pattern = "<code>[^>]+</code>"
         let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         let matches = regex?.matches(in: answerBody ?? "", options: [], range: NSRange(location: 0, length: answerBody?.count ?? 0))
         for match in matches ?? [] {
-                attributedString.addAttribute(.backgroundColor, value: UIColor(red: 0, green: 110.0 / 255.0, blue: 200.0 / 255.0, alpha: 0.5), range: match.range)
+            attributedString.addAttribute(
+                .backgroundColor,
+                value: UIColor(red: 0, green: 110.0 / 255.0, blue: 200.0 / 255.0, alpha: 0.5),
+                range: match.range
+            )
             if let aSize = UIFont(name: "Courier", size: 17) {
                 attributedString.addAttribute(.font, value: aSize, range: match.range)
             }
@@ -43,8 +46,6 @@ class AnswerTableViewCell: UITableViewCell {
         answerLabel.attributedText = attributedString
         authorLabel.text = answer?.owner?.displayName
         numberOfVotesLabel.text = String(format: "%li", Int(answer?.score ?? 0))
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm d-MM-yyyy"
         if let lastDateValue = answer?.lastActivityDate,
            let timeInterval = TimeInterval(exactly: lastDateValue) {
             lastActivityDateLabel.text = "\(dateFormatter.string(from: Date(timeIntervalSince1970: timeInterval)))"

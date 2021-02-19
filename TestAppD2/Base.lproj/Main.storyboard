@@ -115,8 +115,6 @@
                     <connections>
                         <outlet property="containerNavigationItem" destination="ia8-X7-gX6" id="qmg-Ic-gQ3"/>
                         <outlet property="leadingTableViewLayoutConstraint" destination="ZI9-Lv-ice" id="Cay-4j-qGx"/>
-                        <outlet property="mainContainerView" destination="zc0-vP-dB0" id="4sP-91-G47"/>
-                        <outlet property="tableContainerView" destination="xOO-Qd-6an" id="reH-6M-l0q"/>
                         <outlet property="trailingTableViewLayoutConstraint" destination="sNG-k6-sYK" id="xat-j1-l8K"/>
                     </connections>
                 </viewController>
@@ -129,7 +127,7 @@
             <objects>
                 <navigationController id="hWB-5D-miZ" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="lz2-3C-iTL">
-                        <rect key="frame" x="0.0" y="0.0" width="812" height="32"/>
+                        <rect key="frame" x="0.0" y="0.0" width="724" height="32"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -149,11 +147,11 @@
                         <viewControllerLayoutGuide type="bottom" id="Ebc-Ha-Ap0"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="z8Y-u4-NsJ">
-                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
+                        <rect key="frame" x="0.0" y="0.0" width="724" height="758"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="dQP-Ji-mPT">
-                                <rect key="frame" x="0.0" y="0.0" width="812" height="354"/>
+                                <rect key="frame" x="0.0" y="0.0" width="724" height="737"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <sections/>
                                 <connections>
@@ -243,6 +241,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="OKb-Ta-VDn"/>
+        <segue reference="qH9-IS-w9N"/>
     </inferredMetricsTieBreakers>
 </document>

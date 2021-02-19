@@ -8,29 +8,31 @@
 
 import UIKit
 
-class ContainerViewController: UIViewController {
+final class ContainerViewController: UIViewController {
 
-    // FIXME: - Excess outlets!
-    @IBOutlet weak var tableContainerView: UIView!
-    @IBOutlet weak var mainContainerView: UIView!
-    @IBOutlet weak var leadingTableViewLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
-    @IBOutlet weak var containerNavigationItem: UINavigationItem!
+    @IBOutlet private weak var leadingTableViewLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var containerNavigationItem: UINavigationItem!
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "objective-c"
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestedTagNotification(_:)), name: NSNotification.Name("RequestedTagNotification"), object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.requestedTagNotification(_:)),
+            name: NSNotification.Name("RequestedTagNotification"),
+            object: nil
+        )
     }
 
-    @objc func requestedTagNotification(_ notification: NSNotification) {
+    @objc private func requestedTagNotification(_ notification: NSNotification) {
         if let requestedTag = notification.object as? String {
             title = requestedTag            
         }
     }
     
-    @IBAction func menu(_ sender: Any) {
+    @IBAction private func menu(_ sender: Any) {
         if leadingTableViewLayoutConstraint.constant == 0 {
             leadingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width / 2
             trailingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width * -0.5

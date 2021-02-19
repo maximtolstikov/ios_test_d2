@@ -8,34 +8,44 @@
 
 import UIKit
 
-class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+final class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     private let kQuestionCellIdentifier = "CellForQuestion"
     private let kAnswerCellIdentifier = "CellForAnswer"
     
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var titleNavigationItem: UINavigationItem!
-    let refreshControl = UIRefreshControl()
-    let activityIndicatorView = UIActivityIndicatorView()
-    var answers = [AnswerItem()]
     var currentQuestion: Item?
     
-    var formatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, h:mm a"
-        return formatter
+    @IBOutlet private weak var tableView: UITableView!
+    @IBOutlet private weak var titleNavigationItem: UINavigationItem!
+    private let refreshControl = UIRefreshControl()
+    private let activityIndicatorView = UIActivityIndicatorView()
+    private var answers = [AnswerItem()]
+    
+    private var refreshControlFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, h:mm a"
+        return dateFormatter
+    }()
+    private var tableViewCellFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm d-MM-yyyy"
+        return dateFormatter
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.register(UINib(nibName: "AnswerTableViewCell", bundle: nil), forCellReuseIdentifier: kAnswerCellIdentifier)
-        tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kQuestionCellIdentifier)
+        configureTableView()
         addRefreshControlOnTableView()
         settingDynamicHeightForCell()
         addActivityIndicator()
     }
     
     // MARK: - TableView
+    private func configureTableView() {
+        tableView.register(UINib(nibName: "AnswerTableViewCell", bundle: nil), forCellReuseIdentifier: kAnswerCellIdentifier)
+        tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kQuestionCellIdentifier)
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if answers.count == 0 {
             activityIndicatorView.startAnimating()
@@ -53,14 +63,14 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let cell = tableView.dequeueReusableCell(withIdentifier: kAnswerCellIdentifier, for: indexPath) as? AnswerTableViewCell
             var answer: AnswerItem?
             answer = answers[indexPath.row - 1]
-            cell?.fill(answer)
+            cell?.fill(answer, dateFormatter: tableViewCellFormatter)
             return cell ?? UITableViewCell()
         }
     }
     
     @objc func reloadData() {
         tableView.reloadData()
-        let title = "Last update: \(formatter.string(from: Date()))"
+        let title = "Last update: \(refreshControlFormatter.string(from: Date()))"
         let attrsDictionary = [NSAttributedString.Key.foregroundColor : UIColor.black]
         let attributedTitle = NSAttributedString(string: title, attributes: attrsDictionary)
         refreshControl.attributedTitle = attributedTitle
@@ -77,7 +87,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     // MARK: - Private
-    func addActivityIndicator() {
+    private func addActivityIndicator() {
         activityIndicatorView.style = .gray
         let bounds: CGRect = UIScreen.main.bounds
         activityIndicatorView.center = CGPoint(x: bounds.size.width / 2, y: bounds.size.height / 2)
@@ -85,18 +95,18 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         view.addSubview(activityIndicatorView)
     }
     
-    func addRefreshControlOnTableView() {
+    private func addRefreshControlOnTableView() {
         refreshControl.addTarget(self, action: #selector(self.reloadData), for: .valueChanged)
         refreshControl.backgroundColor = UIColor.white
         tableView.addSubview(refreshControl)
     }
     
-    func settingDynamicHeightForCell() {
+    private func settingDynamicHeightForCell() {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 100
     }
     
-    func reload(inTableView jsonData: Data?) {
+    private func reload(inTableView jsonData: Data?) {
         answers = [AnswerItem]()
         if let data = jsonData,
            let answerModel = try? JSONDecoder().decode(Answer.self, from: data),

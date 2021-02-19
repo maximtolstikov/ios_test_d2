@@ -10,20 +10,15 @@ import UIKit
 
 class QuestionTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var questionLabel: UILabel!
-    @IBOutlet weak var authorLabel: UILabel!
-    @IBOutlet var dateModificationLabel: UILabel!
-    @IBOutlet weak var numberOfAnswerLabel: UILabel!
-    @IBOutlet weak var corneredView: UIView!
+    @IBOutlet private weak var questionLabel: UILabel!
+    @IBOutlet private weak var authorLabel: UILabel!
+    @IBOutlet private weak var dateModificationLabel: UILabel!
+    @IBOutlet private weak var numberOfAnswerLabel: UILabel!
+    @IBOutlet private weak var corneredView: UIView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        corneredView.layer.cornerRadius = 20
-        corneredView.layer.masksToBounds = false
-        corneredView.layer.shadowOpacity = 0.2
-        corneredView.layer.shadowColor = UIColor.black.cgColor
-        corneredView.layer.shadowOffset = CGSize.zero
-        corneredView.layer.shadowRadius = 5
+        configureCorneredView()
     }
 
     func fill(_ question: Item?) {
@@ -38,6 +33,15 @@ class QuestionTableViewCell: UITableViewCell {
             let aDate = Date.init(timeIntervalSince1970: timeInterval)
             dateModificationLabel.text = "\(dateFormatter.string(from: aDate)) \(aFormat)"
         }
+    }
+    
+    private func configureCorneredView() {
+        corneredView.layer.cornerRadius = 20
+        corneredView.layer.masksToBounds = false
+        corneredView.layer.shadowOpacity = 0.2
+        corneredView.layer.shadowColor = UIColor.black.cgColor
+        corneredView.layer.shadowOffset = CGSize.zero
+        corneredView.layer.shadowRadius = 5
     }
 
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class MasterViewController: UIViewController {
 
     @IBOutlet private var tableView: UITableView!
     @IBOutlet private weak var leadingTableViewLayoutConstraint: NSLayoutConstraint!
@@ -18,12 +18,12 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     private let activityIndicatorView = UIActivityIndicatorView()
     private let refreshControl = UIRefreshControl()
     private var questions = [Item]()
-    var loadMoreStatus = false
-    var numberOfPageToLoad: Int = 0
-    var requestedTag = ""
-    // FIXME: - Check unused properties!
-    var panRecognizer: UIPanGestureRecognizer?
-    var screenEdgePanRecognizer: UIScreenEdgePanGestureRecognizer?
+    private var loadMoreStatus = false
+    private var numberOfPageToLoad = 1
+    private var requestedTag = ""
+    private var panRecognizer: UIPanGestureRecognizer?
+    private var screenEdgePanRecognizer: UIScreenEdgePanGestureRecognizer?
+
     
     var formatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -33,19 +33,22 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // FIXME: - Order!
         tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kCellIdentifier)
-        numberOfPageToLoad = 1
         addRefreshControlOnTableView()
         settingDynamicHeightForCell()
         addActivityIndicator()
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestedTagNotification(_:)), name: NSNotification.Name("RequestedTagNotification"), object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.requestedTagNotification(_:)),
+            name: NSNotification.Name("RequestedTagNotification"),
+            object: nil
+        )
         requestedTag = ArrayOfTags.shared[0]
         definesPresentationContext = true
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
             self.reload(inTableView: data, removeAllObjects: true)
         }
-        numbeŒrOfPageToLoad += 1
+        numberOfPageToLoad += 1
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -58,17 +61,17 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         detailViewController?.navigationItem.leftItemsSupplementBackButton = true
     }
 
-    func addRefreshControlOnTableView() {
-        refreshControl.addTarget(self, action: #selector(self.reloadData), for: .valueChanged)
+    private func addRefreshControlOnTableView() {
+        refreshControl.addTarget(self, action: #selector(reloadData), for: .valueChanged)
         tableView.addSubview(refreshControl)
     }
     
-    func settingDynamicHeightForCell() {
+    private func settingDynamicHeightForCell() {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 100
     }
     
-    func addActivityIndicator() {
+    private func addActivityIndicator() {
         activityIndicatorView.style = .gray
         let bounds: CGRect = UIScreen.main.bounds
         activityIndicatorView.center = CGPoint(x: bounds.size.width / 2, y: bounds.size.height / 2)
@@ -76,8 +79,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         view.addSubview(activityIndicatorView)
     }
 
-    @objc func reloadData() {
-        // FIXME: - Why here?
+    @objc private func reloadData() {
         numberOfPageToLoad = 1
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
             self.reload(inTableView: data, removeAllObjects: true)
@@ -90,7 +92,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         refreshControl.endRefreshing()
     }
     
-    func reload(inTableView jsonData: Data?, removeAllObjects: Bool) {
+    private func reload(inTableView jsonData: Data?, removeAllObjects: Bool) {
         if removeAllObjects {
             questions = []
         }
@@ -103,9 +105,48 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
             self.activityIndicatorView.stopAnimating()
         })
     }
+
+    // MARK: - Notification
+    @objc private func requestedTagNotification(_ notification: Notification?) {
+        activityIndicatorView.startAnimating()
+        if let notificationString = notification?.object as? String {
+            requestedTag = notificationString
+            numberOfPageToLoad = 1
+            FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
+                self.reload(inTableView: data, removeAllObjects: true)
+            }
+            numberOfPageToLoad += 1
+        }
+    }
     
-    // FIXME: - Bring away to extension!
+    // MARK: - IBAction
+    @IBAction func slideMenu(_ sender: Any) {
+        if leadingTableViewLayoutConstraint.constant == 0 {
+            leadingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width / 2
+            trailingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width * -0.5
+            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
+                self.view.layoutIfNeeded()
+            })
+            screenEdgePanRecognizer?.isEnabled = false
+            panRecognizer?.isEnabled = true
+            tableView.allowsSelection = false
+        } else {
+            leadingTableViewLayoutConstraint.constant = 0
+            trailingTableViewLayoutConstraint.constant = 0
+            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
+                self.view.layoutIfNeeded()
+            })
+            screenEdgePanRecognizer?.isEnabled = true
+            panRecognizer?.isEnabled = false
+            tableView.allowsSelection = true
+        }
+    }
+
     
+}
+
+// MARK: - UITableViewDelegate, UITableViewDataSource
+extension MasterViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if questions.count == 0 {
             activityIndicatorView.startAnimating()
@@ -142,42 +183,4 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
     }
-
-    // MARK: - Notification
-    @objc func requestedTagNotification(_ notification: Notification?) {
-        activityIndicatorView.startAnimating()
-        if let notificationString = notification?.object as? String {
-            requestedTag = notificationString
-            numberOfPageToLoad = 1
-            FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
-                self.reload(inTableView: data, removeAllObjects: true)
-            }
-            numberOfPageToLoad += 1
-        }
-    }
-    
-    // MARK: - IBAction
-    @IBAction func slideMenu(_ sender: Any) {
-        // FIXME: - Unused method!
-//        if leadingTableViewLayoutConstraint.constant == 0 {
-//            leadingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width / 2
-//            trailingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width * -0.5
-//            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
-//                self.view.layoutIfNeeded()
-//            })
-//            screenEdgePanRecognizer?.isEnabled = false
-//            panRecognizer?.isEnabled = true
-//            tableView.allowsSelection = false
-//        } else {
-//            leadingTableViewLayoutConstraint.constant = 0
-//            trailingTableViewLayoutConstraint.constant = 0
-//            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
-//                self.view.layoutIfNeeded()
-//            })
-//            screenEdgePanRecognizer?.isEnabled = true
-//            panRecognizer?.isEnabled = false
-//            tableView.allowsSelection = true
-//        }
-    }
 }
-
