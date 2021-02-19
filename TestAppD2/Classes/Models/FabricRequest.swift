@@ -10,14 +10,19 @@ import UIKit
 
 class FabricRequest: NSObject {
     
-    class func request(tagged stringTagged: String?, numberOfPageToLoad: Int, withBlock completionHandler: @escaping (_ data: Data?) -> Void) {
+    // FIXME: - Refactoring!
+    
+    class func request(tagged stringTagged: String, numberOfPageToLoad: Int, withBlock completionHandler: @escaping (_ data: Data?) -> Void) {
         let protocolHostPath = "https://api.stackexchange.com/2.2/questions"
         let parameters = "order=desc&sort=activity&site=stackoverflow&key=G*0DJzE8SfBrKn4tMej85Q(("
-        // FIXME: - Force unwrap!
-        let stringURL = protocolHostPath + "?" + parameters + "&pagesize=50&tagged=" + stringTagged! + String(format: "&page=%ld", numberOfPageToLoad)
+        let stringURL = protocolHostPath + "?" + parameters + "&pagesize=50&tagged=" + stringTagged + String(format: "&page=%ld", numberOfPageToLoad)
         if CacheWithTimeInterval.objectForKey(stringURL) == nil {
-            let stringURL = protocolHostPath + "?" + parameters + "&pagesize=50&tagged=" + stringTagged! + String(format: "&page=%ld", numberOfPageToLoad)
-            var request = URLRequest(url: URL(string: stringURL)!)
+            let stringURL = protocolHostPath + "?" + parameters + "&pagesize=50&tagged=" + stringTagged + String(format: "&page=%ld", numberOfPageToLoad)
+            guard let unwrappedUrl = URL(string: stringURL) else {
+                completionHandler(nil)
+                return
+            }
+            var request = URLRequest(url: unwrappedUrl)
             request.httpMethod = "GET"
             let defaultConfiguration = URLSessionConfiguration.default
             let defaultSession = URLSession(configuration: defaultConfiguration)
@@ -33,10 +38,13 @@ class FabricRequest: NSObject {
     
     class func request(withQuestionID questionID: Int, withBlock completionHandler: @escaping (_ data: Data?) -> Void) {
         let protocolHostPath = "https://api.stackexchange.com/2.2/questions"
-        let parametrs = "order=desc&sort=activity&site=stackoverflow&key=G*0DJzE8SfBrKn4tMej85Q(("
-        let stringURL = String(format: "%@/%li/answers?%@&filter=!9YdnSMKKT", protocolHostPath, questionID, parametrs)
-        // FIXME: - Force unwrap!
-        var request = URLRequest(url: URL(string: stringURL)!)
+        let parameters = "order=desc&sort=activity&site=stackoverflow&key=G*0DJzE8SfBrKn4tMej85Q(("
+        let stringURL = String(format: "%@/%li/answers?%@&filter=!9YdnSMKKT", protocolHostPath, questionID, parameters)
+        guard let unwrappedUrl = URL(string: stringURL) else {
+            completionHandler(nil)
+            return
+        }
+        var request = URLRequest(url: unwrappedUrl)
         request.httpMethod = "GET"
         let defaultConfiguration = URLSessionConfiguration.default
         let defaultSession = URLSession(configuration: defaultConfiguration, delegate: nil, delegateQueue: OperationQueue.main)

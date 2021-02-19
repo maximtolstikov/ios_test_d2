@@ -129,7 +129,7 @@
             <objects>
                 <navigationController id="hWB-5D-miZ" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="lz2-3C-iTL">
-                        <rect key="frame" x="0.0" y="0.0" width="724" height="32"/>
+                        <rect key="frame" x="0.0" y="0.0" width="812" height="32"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -149,11 +149,11 @@
                         <viewControllerLayoutGuide type="bottom" id="Ebc-Ha-Ap0"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="z8Y-u4-NsJ">
-                        <rect key="frame" x="0.0" y="0.0" width="724" height="758"/>
+                        <rect key="frame" x="0.0" y="0.0" width="812" height="375"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="dQP-Ji-mPT">
-                                <rect key="frame" x="0.0" y="0.0" width="724" height="737"/>
+                                <rect key="frame" x="0.0" y="0.0" width="812" height="354"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <sections/>
                                 <connections>
@@ -243,6 +243,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="qH9-IS-w9N"/>
+        <segue reference="OKb-Ta-VDn"/>
     </inferredMetricsTieBreakers>
 </document>

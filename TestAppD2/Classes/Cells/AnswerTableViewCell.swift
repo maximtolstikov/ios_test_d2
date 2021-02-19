@@ -41,15 +41,15 @@ class AnswerTableViewCell: UITableViewCell {
             }
         }
         answerLabel.attributedText = attributedString
-        authorLabel.text = answer?.owner?.display_name
+        authorLabel.text = answer?.owner?.displayName
         numberOfVotesLabel.text = String(format: "%li", Int(answer?.score ?? 0))
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm d-MM-yyyy"
-        if let last_activity_date = answer?.last_activity_date {
-            // FIXME: - Force unwrap!
-            lastActivityDateLabel.text = "\(dateFormatter.string(from: Date.init(timeIntervalSince1970: TimeInterval(exactly: last_activity_date)!)))"
+        if let lastDateValue = answer?.lastActivityDate,
+           let timeInterval = TimeInterval(exactly: lastDateValue) {
+            lastActivityDateLabel.text = "\(dateFormatter.string(from: Date(timeIntervalSince1970: timeInterval)))"
         }
-        checkImageView.isHidden = answer?.is_accepted != nil
+        checkImageView.isHidden = answer?.isAccepted != nil
     }
     
 }

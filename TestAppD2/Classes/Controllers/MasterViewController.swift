@@ -14,7 +14,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     let kCellIdentifier = "CellForQuestion"
     @IBOutlet var tableView: UITableView!
     var activityIndicatorView: UIActivityIndicatorView!
-    var questions: [Item]? = []
+    var questions = [Item]()
     var refreshControl: UIRefreshControl?
     var loadMoreStatus = false
     var numberOfPageToLoad: Int = 0
@@ -36,8 +36,6 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestedTagNotification(_:)), name: NSNotification.Name("RequestedTagNotification"), object: nil)
         requestedTag = ArrayOfTags.shared[0]
         definesPresentationContext = true
-        // FIXME: - Clean!
-        questions = [Item]()
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
             self.reload(inTableView: data, removeAllObjects: true)
         }
@@ -47,7 +45,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let indexPath: IndexPath? = tableView.indexPathForSelectedRow
         let detailViewController = (segue.destination as? UINavigationController)?.topViewController as? DetailViewController
-        let item = questions?[indexPath?.row ?? 0]
+        let item = questions[indexPath?.row ?? 0]
         detailViewController?.currentQuestion = item
         detailViewController?.loadAnswers()
         detailViewController?.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
@@ -99,11 +97,11 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func reload(inTableView jsonData: Data?, removeAllObjects: Bool) {
         if removeAllObjects {
-            questions = [Item]()
+            questions = []
         }
-        // FIXME: - Force unwrap!
-        if let items = ((try? JSONDecoder().decode(Question.self, from: jsonData!).items) as [Item]??) {
-            questions = questions! + items!
+        if let unwrappedData = jsonData,
+           let items = try? JSONDecoder().decode(Question.self, from: unwrappedData).items {
+            questions = questions + items
         }
         DispatchQueue.main.async(execute: {
             self.tableView.reloadData()
@@ -114,19 +112,18 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // FIXME: - Bring away to extension!
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if questions?.count == 0 {
+        if questions.count == 0 {
             activityIndicatorView.startAnimating()
         }
-        return questions?.count ?? 0
+        return questions.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: kCellIdentifier, for: indexPath) as? QuestionTableViewCell
-        if questions?.count ?? 0 > 0 {
-            cell?.fill(questions?[indexPath.row])
+        if questions.count > 0 {
+            cell?.fill(questions[indexPath.row])
         }
-        // FIXME: - Force unwrap!
-        return cell!
+        return cell ?? UITableViewCell()
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -154,13 +151,14 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // MARK: - Notification
     @objc func requestedTagNotification(_ notification: Notification?) {
         activityIndicatorView.startAnimating()
-        // FIXME: - Force unwrap!
-        requestedTag = notification?.object as! String
-        numberOfPageToLoad = 1
-        FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
-            self.reload(inTableView: data, removeAllObjects: true)
+        if let notificationString = notification?.object as? String {
+            requestedTag = notificationString
+            numberOfPageToLoad = 1
+            FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
+                self.reload(inTableView: data, removeAllObjects: true)
+            }
+            numberOfPageToLoad += 1
         }
-        numberOfPageToLoad += 1
     }
     
     // MARK: - IBAction

@@ -16,7 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         let splitViewController = window?.rootViewController as? UISplitViewController
-        // FIXME: - Bring away to SplitVC!
         let navigationController = splitViewController?.viewControllers.last as? UINavigationController
         navigationController?.topViewController?.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
         splitViewController?.delegate = self

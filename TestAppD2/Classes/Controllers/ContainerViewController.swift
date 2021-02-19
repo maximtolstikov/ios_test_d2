@@ -25,9 +25,9 @@ class ContainerViewController: UIViewController {
     }
 
     @objc func requestedTagNotification(_ notification: NSNotification) {
-        // FIXME: - Force unwrap!
-        let requestedTag = notification.object as! String
-        title = requestedTag
+        if let requestedTag = notification.object as? String {
+            title = requestedTag            
+        }
     }
     
     @IBAction func menu(_ sender: Any) {

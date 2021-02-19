@@ -10,28 +10,28 @@ import UIKit
 
 class CacheWithTimeInterval: NSObject {
     
-    // FIXME: - Hardcore name!
+    private static let cacheKey = "cache"
 
     class func objectForKey(_ key: String) -> Data? {
         var arrayOfCachedData: [Data] = []
-        if UserDefaults.standard.array(forKey: "cache") != nil {
-            // FIXME: - Force unwrap!
-            arrayOfCachedData = UserDefaults.standard.array(forKey: "cache") as! [Data]
+        if UserDefaults.standard.array(forKey: CacheWithTimeInterval.cacheKey) != nil,
+           let unwrappedDataArray = UserDefaults.standard.array(forKey: CacheWithTimeInterval.cacheKey) as? [Data] {
+            arrayOfCachedData = unwrappedDataArray
         } else {
             arrayOfCachedData = []
         }
         var mutableArrayOfCachedData = arrayOfCachedData
         var deletedCount = 0
         for (index, data) in arrayOfCachedData.enumerated() {
-            let storedData = try! PropertyListDecoder().decode(StoredData.self, from: data)
-            if abs(storedData.date.timeIntervalSinceNow) < 5 * 60 {
+            if let storedData = try? PropertyListDecoder().decode(StoredData.self, from: data),
+               abs(storedData.date.timeIntervalSinceNow) < 5 * 60 {
                 if storedData.key == key {
                     return storedData.data
                 }
             } else {
                 mutableArrayOfCachedData.remove(at: index - deletedCount)
                 deletedCount += 1
-                UserDefaults.standard.set(mutableArrayOfCachedData, forKey: "cache")
+                UserDefaults.standard.set(mutableArrayOfCachedData, forKey: CacheWithTimeInterval.cacheKey)
             }
         }
         return nil
@@ -39,18 +39,18 @@ class CacheWithTimeInterval: NSObject {
     
     class func set(data: Data?, for key: String) {
         var arrayOfCachedData: [Data] = []
-        if UserDefaults.standard.array(forKey: "cache") != nil {
-            arrayOfCachedData = UserDefaults.standard.array(forKey: "cache") as! [Data]
+        if UserDefaults.standard.array(forKey: CacheWithTimeInterval.cacheKey) != nil {
+            arrayOfCachedData = UserDefaults.standard.array(forKey: CacheWithTimeInterval.cacheKey) as! [Data]
         }
-        if data != nil {
-            // FIXME: - Force unwrap!
+        if let unwrappedData = data {
             if CacheWithTimeInterval.objectForKey(key) == nil {
-                let storedData = StoredData(key: key, date: Date(), data: data!)
-                let data = try? PropertyListEncoder().encode(storedData)
-                arrayOfCachedData.append(data!)
+                let storedData = StoredData(key: key, date: Date(), data: unwrappedData)
+                if let encodedData = try? PropertyListEncoder().encode(storedData) {
+                    arrayOfCachedData.append(encodedData)
+                }                
             }
         }
-        UserDefaults.standard.set(arrayOfCachedData, forKey: "cache")
+        UserDefaults.standard.set(arrayOfCachedData, forKey: CacheWithTimeInterval.cacheKey)
     }
     
 }

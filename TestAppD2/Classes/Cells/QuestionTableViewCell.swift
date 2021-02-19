@@ -28,13 +28,14 @@ class QuestionTableViewCell: UITableViewCell {
 
     func fill(_ question: Item?) {
         questionLabel.text = question?.title
-        authorLabel.text = question?.owner?.display_name
-        numberOfAnswerLabel.text = String(format: "%li", Int(question?.answer_count ?? 0))
+        authorLabel.text = question?.owner?.displayName
+        numberOfAnswerLabel.text = String(format: "%li", Int(question?.answerCount ?? 0))
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm d-MM-yyyy"
-        if let aFormat = question?.smartDateFormat {
-            // FIXME: - Force unwrap!
-            let aDate = Date.init(timeIntervalSince1970: TimeInterval(exactly: ((question?.last_activity_date)!))!)
+        if let aFormat = question?.smartDateFormat,
+           let lastDateValue = question?.lastActivityDate,
+           let timeInterval = TimeInterval( exactly: lastDateValue) {
+            let aDate = Date.init(timeIntervalSince1970: timeInterval)
             dateModificationLabel.text = "\(dateFormatter.string(from: aDate)) \(aFormat)"
         }
     }
