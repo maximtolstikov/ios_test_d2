@@ -24,7 +24,15 @@ class Answer: Decodable {
 struct AnswerItem: Decodable {
     var owner: Owner?
     var score: Int?
-    var last_activity_date: Int?
+    var lastActivityDate: Int?
     var body: String?
-    var is_accepted: Bool?
+    var isAccepted: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case owner
+        case score
+        case lastActivityDate = "last_activity_date"
+        case body
+        case isAccepted = "is_accepted"
+    }
 }

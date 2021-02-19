@@ -13,6 +13,7 @@ class MenuViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var menuTableView: UITableView!
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         menuTableView.delegate = self
         menuTableView.dataSource = self
     }

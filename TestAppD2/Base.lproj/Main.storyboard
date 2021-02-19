@@ -31,6 +31,7 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="rgm-Jf-Z1v"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="kgZ-jT-tUb" firstAttribute="top" secondItem="uVG-SA-gVm" secondAttribute="top" id="7Ip-2Y-ChQ"/>
                             <constraint firstAttribute="bottom" secondItem="kgZ-jT-tUb" secondAttribute="bottom" id="dSo-He-VeI"/>
@@ -41,7 +42,7 @@
                     <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
                     <toolbarItems/>
                     <connections>
-                        <outlet property="leadingTabelViewLayoutConstraint" destination="rIi-NW-h23" id="hLd-n4-m6M"/>
+                        <outlet property="leadingTableViewLayoutConstraint" destination="rIi-NW-h23" id="hLd-n4-m6M"/>
                         <outlet property="tableView" destination="kgZ-jT-tUb" id="wdi-Rw-qGN"/>
                         <outlet property="trailingTableViewLayoutConstraint" destination="n5A-Em-tmR" id="Eta-MO-cvp"/>
                         <segue destination="hWB-5D-miZ" kind="showDetail" identifier="DetailSegue" id="qH9-IS-w9N"/>
@@ -85,7 +86,7 @@
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zc0-vP-dB0">
                                 <rect key="frame" x="0.0" y="0.0" width="812" height="768"/>
                                 <connections>
-                                    <segue destination="PUx-nP-rFy" kind="embed" id="OqO-7Z-Igb"/>
+                                    <segue destination="PUx-nP-rFy" kind="embed" identifier="MasterViewControllerEmbedSegue" id="OqO-7Z-Igb"/>
                                 </connections>
                             </containerView>
                         </subviews>
@@ -114,9 +115,7 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="containerNavigationItem" destination="ia8-X7-gX6" id="qmg-Ic-gQ3"/>
-                        <outlet property="leadingTabelViewLayoutConstraint" destination="ZI9-Lv-ice" id="Cay-4j-qGx"/>
-                        <outlet property="mainContainerView" destination="zc0-vP-dB0" id="4sP-91-G47"/>
-                        <outlet property="tableContainerView" destination="xOO-Qd-6an" id="reH-6M-l0q"/>
+                        <outlet property="leadingTableViewLayoutConstraint" destination="ZI9-Lv-ice" id="Cay-4j-qGx"/>
                         <outlet property="trailingTableViewLayoutConstraint" destination="sNG-k6-sYK" id="xat-j1-l8K"/>
                     </connections>
                 </viewController>
@@ -138,7 +137,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GeR-mB-fAz" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-826" y="1658"/>
+            <point key="canvasLocation" x="-850" y="1827"/>
         </scene>
         <!--Detail View Controller-->
         <scene sceneID="aic-We-xmP">
@@ -206,11 +205,11 @@
                         <viewControllerLayoutGuide type="bottom" id="Mc9-kE-Pda"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="XBN-6a-TaA">
-                        <rect key="frame" x="0.0" y="0.0" width="406" height="343"/>
+                        <rect key="frame" x="0.0" y="0.0" width="406" height="331"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="8bV-C3-nLQ">
-                                <rect key="frame" x="0.0" y="0.0" width="406" height="343"/>
+                                <rect key="frame" x="0.0" y="0.0" width="406" height="331"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="CellForMenuTableView" id="F5j-W6-YGU">

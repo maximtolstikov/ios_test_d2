@@ -13,13 +13,26 @@ struct Question: Decodable {
 }
 
 struct Item: Decodable {
+    
+    enum CodingKeys: String, CodingKey {
+        case owner
+        case answerCount = "answer_count"
+        case questionId = "question_id"
+        case lastActivityDate = "last_activity_date"
+        case title
+    }
+    
     let owner: Owner?
-    let answer_count: Int?
-    let question_id: Int?
-    let last_activity_date: Int?
+    let answerCount: Int?
+    let questionId: Int?
+    let lastActivityDate: Int?
     let title: String?
     var smartDateFormat: String? {
-        return Item.timeAgoString(from: Date.init(timeIntervalSince1970: TimeInterval(exactly: self.last_activity_date!)!) ?? Date())
+        if let lastDataValue = lastActivityDate, let timeInterval = TimeInterval(exactly: lastDataValue) {
+            return Item.timeAgoString(from: Date(timeIntervalSince1970: timeInterval))
+        } else {
+            return Item.timeAgoString(from: Date())
+        }
     }
 
     static func timeAgoString(from date: Date?) -> String? {
@@ -29,18 +42,22 @@ struct Item: Decodable {
         let calendar = Calendar.current
         var components: DateComponents
         if let aDate = date {
-            components = calendar.dateComponents([.year, .month, .weekOfMonth, .day, .hour, .minute, .second], from: aDate, to: now)
-            if components.year! > 0 {
+            components = calendar.dateComponents(
+                [.year, .month, .weekOfMonth, .day, .hour, .minute, .second],
+                from: aDate,
+                to: now
+            )
+            if let yearComponents = components.year, yearComponents > 0 {
                 formatter.allowedUnits = NSCalendar.Unit.year
-            } else if components.month! > 0 {
+            } else if let monthComponents = components.month, monthComponents > 0 {
                 formatter.allowedUnits = .month
-            } else if components.weekOfMonth! > 0 {
+            } else if let weekComponents = components.weekOfMonth, weekComponents > 0 {
                 formatter.allowedUnits = .weekOfMonth
-            } else if components.day! > 0 {
+            } else if let dayComponents = components.day, dayComponents > 0 {
                 formatter.allowedUnits = .day
-            } else if components.hour! > 0 {
+            } else if let hourComponents = components.hour, hourComponents > 0 {
                 formatter.allowedUnits = .hour
-            } else if components.minute! > 0 {
+            } else if let minuteComponents = components.minute, minuteComponents > 0 {
                 formatter.allowedUnits = .minute
             } else {
                 formatter.allowedUnits = .second
@@ -52,5 +69,9 @@ struct Item: Decodable {
 }
 
 struct Owner: Decodable {
-    let display_name: String?
+    let displayName: String?
+    
+    enum CodingKeys: String, CodingKey {
+            case displayName = "display_name"
+    }
 }

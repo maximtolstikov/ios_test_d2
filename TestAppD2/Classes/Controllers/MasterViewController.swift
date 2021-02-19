@@ -8,31 +8,40 @@
 
 import UIKit
 
-class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class MasterViewController: UIViewController {
+
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet private weak var leadingTableViewLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
     
-    let kCellIdentifier = "CellForQuestion"
-    @IBOutlet var tableView: UITableView!
-    var activityIndicatorView: UIActivityIndicatorView!
-    var questions: [Item]? = []
-    var refreshControl: UIRefreshControl?
-    var loadMoreStatus = false
-    var numberOfPageToLoad: Int = 0
-    var requestedTag = ""
-    @IBOutlet weak var leadingTabelViewLayoutConstraint: NSLayoutConstraint!
-    var panRecognizer: UIPanGestureRecognizer?
-    var screenEdgePanRecognizer: UIScreenEdgePanGestureRecognizer?
-    @IBOutlet weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
+    private let kCellIdentifier = "CellForQuestion"
+    private let activityIndicatorView = UIActivityIndicatorView()
+    private let refreshControl = UIRefreshControl()
+    private var questions = [Item]()
+    private var loadMoreStatus = false
+    private var numberOfPageToLoad = 1
+    private var requestedTag = ""
+    
+    var formatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, h:mm a"
+        return formatter
+    }()
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kCellIdentifier)
-        numberOfPageToLoad = 1
-        addRefreshControlOnTabelView()
+        addRefreshControlOnTableView()
         settingDynamicHeightForCell()
         addActivityIndicator()
-        NotificationCenter.default.addObserver(self, selector: #selector(self.requestedTagNotification(_:)), name: NSNotification.Name("RequestedTagNotification"), object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.requestedTagNotification(_:)),
+            name: NSNotification.Name("RequestedTagNotification"),
+            object: nil
+        )
         requestedTag = ArrayOfTags.shared[0]
         definesPresentationContext = true
-        questions = [Item]()
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
             self.reload(inTableView: data, removeAllObjects: true)
         }
@@ -42,28 +51,24 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let indexPath: IndexPath? = tableView.indexPathForSelectedRow
         let detailViewController = (segue.destination as? UINavigationController)?.topViewController as? DetailViewController
-        let item = questions?[indexPath?.row ?? 0]
+        let item = questions[indexPath?.row ?? 0]
         detailViewController?.currentQuestion = item
         detailViewController?.loadAnswers()
         detailViewController?.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
         detailViewController?.navigationItem.leftItemsSupplementBackButton = true
     }
 
-    func addRefreshControlOnTabelView() {
-        refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(self.reloadData), for: .valueChanged)
-        if let refreshControl = refreshControl {
-            tableView.addSubview(refreshControl)
-        }
+    private func addRefreshControlOnTableView() {
+        refreshControl.addTarget(self, action: #selector(reloadData), for: .valueChanged)
+        tableView.addSubview(refreshControl)
     }
     
-    func settingDynamicHeightForCell() {
+    private func settingDynamicHeightForCell() {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 100
     }
     
-    func addActivityIndicator() {
-        activityIndicatorView = UIActivityIndicatorView()
+    private func addActivityIndicator() {
         activityIndicatorView.style = .gray
         let bounds: CGRect = UIScreen.main.bounds
         activityIndicatorView.center = CGPoint(x: bounds.size.width / 2, y: bounds.size.height / 2)
@@ -71,49 +76,62 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         view.addSubview(activityIndicatorView)
     }
 
-    @objc func reloadData() {
+    @objc private func reloadData() {
         numberOfPageToLoad = 1
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
             self.reload(inTableView: data, removeAllObjects: true)
         }
         numberOfPageToLoad += 1
-        if refreshControl != nil {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM d, h:mm a"
-            let title = "Last update: \(formatter.string(from: Date()))"
-            let attrsDictionary = [NSAttributedString.Key.foregroundColor : UIColor.white]
-            let attributedTitle = NSAttributedString(string: title, attributes: attrsDictionary)
-            refreshControl?.attributedTitle = attributedTitle
-            refreshControl?.endRefreshing()
-        }
+        let title = "Last update: \(formatter.string(from: Date()))"
+        let attrsDictionary = [NSAttributedString.Key.foregroundColor : UIColor.white]
+        let attributedTitle = NSAttributedString(string: title, attributes: attrsDictionary)
+        refreshControl.attributedTitle = attributedTitle
+        refreshControl.endRefreshing()
     }
     
-    func reload(inTableView jsonData: Data?, removeAllObjects: Bool) {
+    private func reload(inTableView jsonData: Data?, removeAllObjects: Bool) {
         if removeAllObjects {
-            questions = [Item]()
+            questions = []
         }
-        if let items = try? JSONDecoder().decode(Question.self, from: jsonData!).items {
-            questions = questions! + items!
+        if let unwrappedData = jsonData,
+           let items = try? JSONDecoder().decode(Question.self, from: unwrappedData).items {
+            questions = questions + items
         }
         DispatchQueue.main.async(execute: {
             self.tableView.reloadData()
             self.activityIndicatorView.stopAnimating()
         })
     }
-    
+
+    // MARK: - Notification
+    @objc private func requestedTagNotification(_ notification: Notification?) {
+        activityIndicatorView.startAnimating()
+        if let notificationString = notification?.object as? String {
+            requestedTag = notificationString
+            numberOfPageToLoad = 1
+            FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
+                self.reload(inTableView: data, removeAllObjects: true)
+            }
+            numberOfPageToLoad += 1
+        }
+    }    
+}
+
+// MARK: - UITableViewDelegate, UITableViewDataSource
+extension MasterViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if questions?.count == 0 {
+        if questions.count == 0 {
             activityIndicatorView.startAnimating()
         }
-        return questions?.count ?? 0
+        return questions.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: kCellIdentifier, for: indexPath) as? QuestionTableViewCell
-        if questions?.count ?? 0 > 0 {
-            cell?.fill(questions?[indexPath.row])
+        if questions.count > 0 {
+            cell?.fill(questions[indexPath.row])
         }
-        return cell!
+        return cell ?? UITableViewCell()
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -137,39 +155,4 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
     }
-
-    // MARK: - Notification
-    @objc func requestedTagNotification(_ notification: Notification?) {
-        activityIndicatorView.startAnimating()
-        requestedTag = notification?.object as! String
-        numberOfPageToLoad = 1
-        FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
-            self.reload(inTableView: data, removeAllObjects: true)
-        }
-        numberOfPageToLoad += 1
-    }
-    
-    // MARK: - IBAction
-    @IBAction func slideMenu(_ sender: Any) {
-        if leadingTabelViewLayoutConstraint.constant == 0 {
-            leadingTabelViewLayoutConstraint.constant = UIScreen.main.bounds.size.width / 2
-            trailingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width * -0.5
-            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
-                self.view.layoutIfNeeded()
-            })
-            screenEdgePanRecognizer?.isEnabled = false
-            panRecognizer?.isEnabled = true
-            tableView.allowsSelection = false
-        } else {
-            leadingTabelViewLayoutConstraint.constant = 0
-            trailingTableViewLayoutConstraint.constant = 0
-            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
-                self.view.layoutIfNeeded()
-            })
-            screenEdgePanRecognizer?.isEnabled = true
-            panRecognizer?.isEnabled = false
-            tableView.allowsSelection = true
-        }
-    }
 }
-
