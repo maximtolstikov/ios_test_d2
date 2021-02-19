@@ -10,6 +10,7 @@ import UIKit
 
 class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    // FIXME: - Fix order properties!
     let kCellIdentifier = "CellForQuestion"
     @IBOutlet var tableView: UITableView!
     var activityIndicatorView: UIActivityIndicatorView!
@@ -18,12 +19,15 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var loadMoreStatus = false
     var numberOfPageToLoad: Int = 0
     var requestedTag = ""
-    @IBOutlet weak var leadingTabelViewLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var leadingTableViewLayoutConstraint: NSLayoutConstraint!
+    // FIXME: - Check unused properties!
     var panRecognizer: UIPanGestureRecognizer?
     var screenEdgePanRecognizer: UIScreenEdgePanGestureRecognizer?
     @IBOutlet weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
+        // FIXME: - Add super!
+        // FIXME: - Order!
         tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kCellIdentifier)
         numberOfPageToLoad = 1
         addRefreshControlOnTabelView()
@@ -32,6 +36,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestedTagNotification(_:)), name: NSNotification.Name("RequestedTagNotification"), object: nil)
         requestedTag = ArrayOfTags.shared[0]
         definesPresentationContext = true
+        // FIXME: - Clean!
         questions = [Item]()
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
             self.reload(inTableView: data, removeAllObjects: true)
@@ -50,6 +55,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     func addRefreshControlOnTabelView() {
+        // FIXME: - Replace initialising!
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(self.reloadData), for: .valueChanged)
         if let refreshControl = refreshControl {
@@ -63,6 +69,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     func addActivityIndicator() {
+        // FIXME: - Replace initialising!
         activityIndicatorView = UIActivityIndicatorView()
         activityIndicatorView.style = .gray
         let bounds: CGRect = UIScreen.main.bounds
@@ -72,12 +79,14 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     @objc func reloadData() {
+        // FIXME: - Why here?
         numberOfPageToLoad = 1
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
             self.reload(inTableView: data, removeAllObjects: true)
         }
         numberOfPageToLoad += 1
         if refreshControl != nil {
+            // FIXME: - Make DateFormatter separated!
             let formatter = DateFormatter()
             formatter.dateFormat = "MMM d, h:mm a"
             let title = "Last update: \(formatter.string(from: Date()))"
@@ -92,7 +101,8 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         if removeAllObjects {
             questions = [Item]()
         }
-        if let items = try? JSONDecoder().decode(Question.self, from: jsonData!).items {
+        // FIXME: - Force unwrap!
+        if let items = ((try? JSONDecoder().decode(Question.self, from: jsonData!).items) as [Item]??) {
             questions = questions! + items!
         }
         DispatchQueue.main.async(execute: {
@@ -100,6 +110,8 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
             self.activityIndicatorView.stopAnimating()
         })
     }
+    
+    // FIXME: - Bring away to extension!
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if questions?.count == 0 {
@@ -113,6 +125,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         if questions?.count ?? 0 > 0 {
             cell?.fill(questions?[indexPath.row])
         }
+        // FIXME: - Force unwrap!
         return cell!
     }
     
@@ -141,6 +154,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // MARK: - Notification
     @objc func requestedTagNotification(_ notification: Notification?) {
         activityIndicatorView.startAnimating()
+        // FIXME: - Force unwrap!
         requestedTag = notification?.object as! String
         numberOfPageToLoad = 1
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
@@ -151,25 +165,26 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     // MARK: - IBAction
     @IBAction func slideMenu(_ sender: Any) {
-        if leadingTabelViewLayoutConstraint.constant == 0 {
-            leadingTabelViewLayoutConstraint.constant = UIScreen.main.bounds.size.width / 2
-            trailingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width * -0.5
-            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
-                self.view.layoutIfNeeded()
-            })
-            screenEdgePanRecognizer?.isEnabled = false
-            panRecognizer?.isEnabled = true
-            tableView.allowsSelection = false
-        } else {
-            leadingTabelViewLayoutConstraint.constant = 0
-            trailingTableViewLayoutConstraint.constant = 0
-            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
-                self.view.layoutIfNeeded()
-            })
-            screenEdgePanRecognizer?.isEnabled = true
-            panRecognizer?.isEnabled = false
-            tableView.allowsSelection = true
-        }
+        // FIXME: - Unused method!
+//        if leadingTableViewLayoutConstraint.constant == 0 {
+//            leadingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width / 2
+//            trailingTableViewLayoutConstraint.constant = UIScreen.main.bounds.size.width * -0.5
+//            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
+//                self.view.layoutIfNeeded()
+//            })
+//            screenEdgePanRecognizer?.isEnabled = false
+//            panRecognizer?.isEnabled = true
+//            tableView.allowsSelection = false
+//        } else {
+//            leadingTableViewLayoutConstraint.constant = 0
+//            trailingTableViewLayoutConstraint.constant = 0
+//            UIView.animate(withDuration: 0.3, delay: 0.0, options: .layoutSubviews, animations: {
+//                self.view.layoutIfNeeded()
+//            })
+//            screenEdgePanRecognizer?.isEnabled = true
+//            panRecognizer?.isEnabled = false
+//            tableView.allowsSelection = true
+//        }
     }
 }
 

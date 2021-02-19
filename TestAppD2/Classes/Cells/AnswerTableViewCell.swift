@@ -19,6 +19,7 @@ class AnswerTableViewCell: UITableViewCell {
     func fill(_ answer: AnswerItem?) {
         backgroundColor = UIColor.white
         var answerBody = answer?.body
+        // FIXME: - Simplify!
         let attributedString = NSMutableAttributedString(string: answer?.body ?? "")
         let pattern = "<code>[^>]+</code>"
         let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
@@ -45,9 +46,10 @@ class AnswerTableViewCell: UITableViewCell {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm d-MM-yyyy"
         if let last_activity_date = answer?.last_activity_date {
+            // FIXME: - Force unwrap!
             lastActivityDateLabel.text = "\(dateFormatter.string(from: Date.init(timeIntervalSince1970: TimeInterval(exactly: last_activity_date)!)))"
         }
-        checkImageView.isHidden = (answer?.is_accepted != nil) ?? true
+        checkImageView.isHidden = answer?.is_accepted != nil
     }
     
 }

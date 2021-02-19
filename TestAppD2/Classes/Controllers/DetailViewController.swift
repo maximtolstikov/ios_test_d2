@@ -15,6 +15,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var titleNavigationItem: UINavigationItem!
+    // FIXME: - Force unwrap!
     var refreshControl: UIRefreshControl!
     var activityIndicatorView: UIActivityIndicatorView!
     var answers: [AnswerItem]! = [AnswerItem()]
@@ -23,7 +24,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     override func viewDidLoad() {
         tableView.register(UINib(nibName: "AnswerTableViewCell", bundle: nil), forCellReuseIdentifier: kAnswerCellIdentifier)
         tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kQuestionCellIdentifier)
-        addRefreshControlOnTabelView()
+        addRefreshControlOnTableView()
         settingDynamicHeightForCell()
         addActivityIndicator()
     }
@@ -41,6 +42,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let cell = tableView.dequeueReusableCell(withIdentifier: kQuestionCellIdentifier, for: indexPath) as? QuestionTableViewCell
             cell?.fill(currentQuestion)
             titleNavigationItem.title = "\(String(describing: currentQuestion.title))"
+            // FIXME: - Force unwrap!
             return cell!
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: kAnswerCellIdentifier, for: indexPath) as? AnswerTableViewCell
@@ -66,6 +68,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     // MARK: - Public
     func loadAnswers() {
+        // FIXME: - Force unwrap!
         FabricRequest.request(withQuestionID: currentQuestion.question_id!) { data in
             self.reload(inTableView: data)
         }
@@ -81,7 +84,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         view.addSubview(activityIndicatorView)
     }
     
-    func addRefreshControlOnTabelView() {
+    func addRefreshControlOnTableView() {
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(self.reloadData), for: .valueChanged)
         refreshControl?.backgroundColor = UIColor.white
@@ -97,6 +100,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func reload(inTableView jsonData: Data?) {
         answers = [AnswerItem]()
+        // FIXME: - Force unwrap!
         if let answerModel = try? JSONDecoder().decode(Answer.self, from: jsonData!) {
             answers = answerModel.items
         }

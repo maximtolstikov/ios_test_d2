@@ -12,10 +12,11 @@ class FabricRequest: NSObject {
     
     class func request(tagged stringTagged: String?, numberOfPageToLoad: Int, withBlock completionHandler: @escaping (_ data: Data?) -> Void) {
         let protocolHostPath = "https://api.stackexchange.com/2.2/questions"
-        let parametrs = "order=desc&sort=activity&site=stackoverflow&key=G*0DJzE8SfBrKn4tMej85Q(("
-        let stringURL = protocolHostPath + "?" + parametrs + "&pagesize=50&tagged=" + stringTagged! + String(format: "&page=%ld", numberOfPageToLoad)
+        let parameters = "order=desc&sort=activity&site=stackoverflow&key=G*0DJzE8SfBrKn4tMej85Q(("
+        // FIXME: - Force unwrap!
+        let stringURL = protocolHostPath + "?" + parameters + "&pagesize=50&tagged=" + stringTagged! + String(format: "&page=%ld", numberOfPageToLoad)
         if CacheWithTimeInterval.objectForKey(stringURL) == nil {
-            let stringURL = protocolHostPath + "?" + parametrs + "&pagesize=50&tagged=" + stringTagged! + String(format: "&page=%ld", numberOfPageToLoad)
+            let stringURL = protocolHostPath + "?" + parameters + "&pagesize=50&tagged=" + stringTagged! + String(format: "&page=%ld", numberOfPageToLoad)
             var request = URLRequest(url: URL(string: stringURL)!)
             request.httpMethod = "GET"
             let defaultConfiguration = URLSessionConfiguration.default
@@ -34,6 +35,7 @@ class FabricRequest: NSObject {
         let protocolHostPath = "https://api.stackexchange.com/2.2/questions"
         let parametrs = "order=desc&sort=activity&site=stackoverflow&key=G*0DJzE8SfBrKn4tMej85Q(("
         let stringURL = String(format: "%@/%li/answers?%@&filter=!9YdnSMKKT", protocolHostPath, questionID, parametrs)
+        // FIXME: - Force unwrap!
         var request = URLRequest(url: URL(string: stringURL)!)
         request.httpMethod = "GET"
         let defaultConfiguration = URLSessionConfiguration.default

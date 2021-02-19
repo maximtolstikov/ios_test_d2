@@ -19,6 +19,7 @@ struct Item: Decodable {
     let last_activity_date: Int?
     let title: String?
     var smartDateFormat: String? {
+        // FIXME: - Force unwrap!
         return Item.timeAgoString(from: Date.init(timeIntervalSince1970: TimeInterval(exactly: self.last_activity_date!)!) ?? Date())
     }
 
@@ -30,6 +31,7 @@ struct Item: Decodable {
         var components: DateComponents
         if let aDate = date {
             components = calendar.dateComponents([.year, .month, .weekOfMonth, .day, .hour, .minute, .second], from: aDate, to: now)
+            // FIXME: - Force unwraps?
             if components.year! > 0 {
                 formatter.allowedUnits = NSCalendar.Unit.year
             } else if components.month! > 0 {

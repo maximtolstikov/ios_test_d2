@@ -9,10 +9,13 @@
 import UIKit
 
 class CacheWithTimeInterval: NSObject {
+    
+    // FIXME: - Hardcore name!
 
     class func objectForKey(_ key: String) -> Data? {
         var arrayOfCachedData: [Data] = []
         if UserDefaults.standard.array(forKey: "cache") != nil {
+            // FIXME: - Force unwrap!
             arrayOfCachedData = UserDefaults.standard.array(forKey: "cache") as! [Data]
         } else {
             arrayOfCachedData = []
@@ -21,7 +24,7 @@ class CacheWithTimeInterval: NSObject {
         var deletedCount = 0
         for (index, data) in arrayOfCachedData.enumerated() {
             let storedData = try! PropertyListDecoder().decode(StoredData.self, from: data)
-            if abs(storedData.date.timeIntervalSinceNow) < 5*60 {
+            if abs(storedData.date.timeIntervalSinceNow) < 5 * 60 {
                 if storedData.key == key {
                     return storedData.data
                 }
@@ -40,6 +43,7 @@ class CacheWithTimeInterval: NSObject {
             arrayOfCachedData = UserDefaults.standard.array(forKey: "cache") as! [Data]
         }
         if data != nil {
+            // FIXME: - Force unwrap!
             if CacheWithTimeInterval.objectForKey(key) == nil {
                 let storedData = StoredData(key: key, date: Date(), data: data!)
                 let data = try? PropertyListEncoder().encode(storedData)
