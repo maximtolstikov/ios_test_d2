@@ -9,28 +9,34 @@
 import UIKit
 
 class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+
+    @IBOutlet private var tableView: UITableView!
+    @IBOutlet private weak var leadingTableViewLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
     
-    // FIXME: - Fix order properties!
-    let kCellIdentifier = "CellForQuestion"
-    @IBOutlet var tableView: UITableView!
-    var activityIndicatorView: UIActivityIndicatorView!
-    var questions = [Item]()
-    var refreshControl: UIRefreshControl?
+    private let kCellIdentifier = "CellForQuestion"
+    private let activityIndicatorView = UIActivityIndicatorView()
+    private let refreshControl = UIRefreshControl()
+    private var questions = [Item]()
     var loadMoreStatus = false
     var numberOfPageToLoad: Int = 0
     var requestedTag = ""
-    @IBOutlet weak var leadingTableViewLayoutConstraint: NSLayoutConstraint!
     // FIXME: - Check unused properties!
     var panRecognizer: UIPanGestureRecognizer?
     var screenEdgePanRecognizer: UIScreenEdgePanGestureRecognizer?
-    @IBOutlet weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
+    
+    var formatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, h:mm a"
+        return formatter
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // FIXME: - Order!
         tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kCellIdentifier)
         numberOfPageToLoad = 1
-        addRefreshControlOnTabelView()
+        addRefreshControlOnTableView()
         settingDynamicHeightForCell()
         addActivityIndicator()
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestedTagNotification(_:)), name: NSNotification.Name("RequestedTagNotification"), object: nil)
@@ -39,7 +45,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         FabricRequest.request(tagged: requestedTag, numberOfPageToLoad: numberOfPageToLoad) { (data) in
             self.reload(inTableView: data, removeAllObjects: true)
         }
-        numberOfPageToLoad += 1
+        numbeŒrOfPageToLoad += 1
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -52,13 +58,9 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
         detailViewController?.navigationItem.leftItemsSupplementBackButton = true
     }
 
-    func addRefreshControlOnTabelView() {
-        // FIXME: - Replace initialising!
-        refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(self.reloadData), for: .valueChanged)
-        if let refreshControl = refreshControl {
-            tableView.addSubview(refreshControl)
-        }
+    func addRefreshControlOnTableView() {
+        refreshControl.addTarget(self, action: #selector(self.reloadData), for: .valueChanged)
+        tableView.addSubview(refreshControl)
     }
     
     func settingDynamicHeightForCell() {
@@ -67,8 +69,6 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     func addActivityIndicator() {
-        // FIXME: - Replace initialising!
-        activityIndicatorView = UIActivityIndicatorView()
         activityIndicatorView.style = .gray
         let bounds: CGRect = UIScreen.main.bounds
         activityIndicatorView.center = CGPoint(x: bounds.size.width / 2, y: bounds.size.height / 2)
@@ -83,16 +83,11 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
             self.reload(inTableView: data, removeAllObjects: true)
         }
         numberOfPageToLoad += 1
-        if refreshControl != nil {
-            // FIXME: - Make DateFormatter separated!
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM d, h:mm a"
-            let title = "Last update: \(formatter.string(from: Date()))"
-            let attrsDictionary = [NSAttributedString.Key.foregroundColor : UIColor.white]
-            let attributedTitle = NSAttributedString(string: title, attributes: attrsDictionary)
-            refreshControl?.attributedTitle = attributedTitle
-            refreshControl?.endRefreshing()
-        }
+        let title = "Last update: \(formatter.string(from: Date()))"
+        let attrsDictionary = [NSAttributedString.Key.foregroundColor : UIColor.white]
+        let attributedTitle = NSAttributedString(string: title, attributes: attrsDictionary)
+        refreshControl.attributedTitle = attributedTitle
+        refreshControl.endRefreshing()
     }
     
     func reload(inTableView jsonData: Data?, removeAllObjects: Bool) {

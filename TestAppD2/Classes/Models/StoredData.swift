@@ -9,8 +9,7 @@
 import UIKit
 
 class StoredData: Codable {
-    
-    // FIXME: - Why CodingKeys if the property names is coincided?
+
     enum CodingKeys: String, CodingKey {
         case key
         case date

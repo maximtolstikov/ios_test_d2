@@ -11,6 +11,7 @@ import UIKit
 class CacheWithTimeInterval: NSObject {
     
     private static let cacheKey = "cache"
+    private static let maxInterval = 5.0 * 60.0
 
     class func objectForKey(_ key: String) -> Data? {
         var arrayOfCachedData: [Data] = []
@@ -24,7 +25,7 @@ class CacheWithTimeInterval: NSObject {
         var deletedCount = 0
         for (index, data) in arrayOfCachedData.enumerated() {
             if let storedData = try? PropertyListDecoder().decode(StoredData.self, from: data),
-               abs(storedData.date.timeIntervalSinceNow) < 5 * 60 {
+               abs(storedData.date.timeIntervalSinceNow) < CacheWithTimeInterval.maxInterval {
                 if storedData.key == key {
                     return storedData.data
                 }
