@@ -15,7 +15,6 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var titleNavigationItem: UINavigationItem!
-    // FIXME: - Force unwrap!
     let refreshControl = UIRefreshControl()
     let activityIndicatorView = UIActivityIndicatorView()
     var answers = [AnswerItem()]
@@ -28,6 +27,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }()
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         tableView.register(UINib(nibName: "AnswerTableViewCell", bundle: nil), forCellReuseIdentifier: kAnswerCellIdentifier)
         tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kQuestionCellIdentifier)
         addRefreshControlOnTableView()
@@ -70,7 +70,6 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // MARK: - Public
     func loadAnswers() {
         if let unwrappedId = currentQuestion?.questionId {
-            // FIXME: - Memory leak!
             FabricRequest.request(withQuestionID: unwrappedId) { data in
                 self.reload(inTableView: data)
             }

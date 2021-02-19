@@ -19,7 +19,7 @@ class ContainerViewController: UIViewController {
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
-        // FIXME: - Add super!
+        super.viewDidLoad()
         navigationItem.title = "objective-c"
         NotificationCenter.default.addObserver(self, selector: #selector(self.requestedTagNotification(_:)), name: NSNotification.Name("RequestedTagNotification"), object: nil)
     }

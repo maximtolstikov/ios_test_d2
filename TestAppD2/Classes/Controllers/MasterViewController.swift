@@ -26,7 +26,7 @@ class MasterViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var trailingTableViewLayoutConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
-        // FIXME: - Add super!
+        super.viewDidLoad()
         // FIXME: - Order!
         tableView.register(UINib(nibName: "QuestionTableViewCell", bundle: nil), forCellReuseIdentifier: kCellIdentifier)
         numberOfPageToLoad = 1
